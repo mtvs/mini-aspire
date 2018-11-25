@@ -18,6 +18,13 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::prefix('officer')
+    ->middleware(['auth:api', function($request, $next) {
+        if (! auth()->user()->is_officer) {
+            throw new \Illuminate\Auth\Access\AuthorizationException('Only accessible by officers');
+        }
+
+        return $next($request);
+    }])
     ->namespace('Officer')
     ->group(function() {
         Route::post('loans', 'LoansController@store');
