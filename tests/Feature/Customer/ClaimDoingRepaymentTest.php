@@ -4,6 +4,7 @@ namespace Tests\Feature\Customer;
 
 use App\Loan;
 use App\User;
+use Illuminate\Http\Response;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -19,6 +20,8 @@ class ClaimDoingRepaymentTest extends TestCase
     {
         $customer = factory(User::class)->create();
 
+        $this->actingAs($customer, 'api');
+
         $repayment = factory(Loan::class)->create([
             'customer_id' => $customer->id
         ])->repayments()->first();
@@ -33,5 +36,26 @@ class ClaimDoingRepaymentTest extends TestCase
             'id' => $repayment->id,
             'transaction_details' => '...'
         ]);
+    }
+
+    /**
+     * @test
+     */
+    public function a_customer_can_not_claim_a_repayment_that_is_not_theirs()
+    {
+        $this->withExceptionHandling();
+
+        $customer = factory(User::class)->create();
+
+        $this->actingAs($customer, 'api');
+
+        $repayment = factory(Loan::class)->create()
+            ->repayments()->first();
+
+        $response = $this->postJson('api/customer/repayment/'.$repayment->id.'/claim', [
+            'transaction_details' => '...'
+        ]);
+
+        $response->assertStatus(Response::HTTP_FORBIDDEN);
     }
 }
