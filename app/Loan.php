@@ -9,28 +9,32 @@ class Loan extends Model
 {
     protected $guarded = [];
 
-    public static function create($attributes = [])
+    public function save($options = [])
     {
 
         DB::beginTransaction();
 
         try {
-            $loan = static::query()->create($attributes);
+            $isNew = ! $this->exists;
 
-            $totalRepaymentsAmount =
-                $loan->amount +
-                ($loan->interest_rate/12 * $loan->amount * $loan->duration) +
-                $loan->arrangement_fee;
+            $return = parent::save($options);
 
-            $singleRepaymentAmount = $totalRepaymentsAmount / $loan->duration;
+            if ($isNew) {
+                $totalRepaymentsAmount =
+                    $this->amount +
+                    ($this->interest_rate/12 * $this->amount * $this->duration) +
+                    $this->arrangement_fee;
 
-            for($i = 1; $i <= $loan->duration; $i++) {
-                $repayments[] = [
-                    'amount' => $singleRepaymentAmount
-                ];
+                $singleRepaymentAmount = $totalRepaymentsAmount / $this->duration;
+
+                for($i = 1; $i <= $this->duration; $i++) {
+                    $repayments[] = [
+                        'amount' => $singleRepaymentAmount
+                    ];
+                }
+
+                $this->repayments()->createMany($repayments);
             }
-
-            $loan->repayments()->createMany($repayments);
         }
         catch (\Throwable $exception) {
             DB::rollback();
@@ -40,7 +44,7 @@ class Loan extends Model
 
         DB::commit();
 
-        return $loan;
+        return $return;
     }
 
     public function repayments()
