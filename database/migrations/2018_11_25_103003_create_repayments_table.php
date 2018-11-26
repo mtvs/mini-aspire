@@ -17,7 +17,7 @@ class CreateRepaymentsTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('loan_id');
             $table->unsignedDecimal('amount', 15);
-            $table->string('transaction_id')->nullable();
+            $table->string('transaction_details')->nullable();
             $table->boolean('transaction_approved')->default(0);
             $table->timestamps();
         });

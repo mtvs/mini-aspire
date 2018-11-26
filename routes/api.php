@@ -29,3 +29,9 @@ Route::prefix('officer')
     ->group(function() {
         Route::post('loans', 'LoansController@store');
     });
+
+Route::prefix('customer')
+    ->namespace('Customer')
+    ->group(function () {
+        Route::post('repayment/{repayment}/claim', 'RepaymentsController@claim');
+    });
