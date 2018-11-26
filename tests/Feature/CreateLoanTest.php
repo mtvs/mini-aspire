@@ -22,17 +22,32 @@ class CreateLoanTest extends TestCase
 
         $this->actingAs($officer, 'api');
 
-        $data = factory(Loan::class)->raw();
+        $data = factory(Loan::class)->raw([
+            'amount' => 10000,
+            'duration' => 3,
+            'interest_rate' => .15,
+            'arrangement_fee' => 100
+        ]);
+
+        $repayment_amount = (10000 + .15/12*10000*3 + 100) / 3;
 
         $response = $this->postJson('api/officer/loans', $data);
 
         $response->assertSuccessful();
 
         $this->assertDatabaseHas('loans', array_merge($data, [
+            'id' => 1,
             'officer_id' => $officer->id,
             'created_at' => now(),
             'updated_at' => now(),
         ]));
+
+        foreach (range(1, 3) as $i) {
+            $this->assertDatabaseHas('repayments', [
+                'loan_id' => 1,
+                'amount' => $repayment_amount,
+            ]);
+        }
     }
 
     /**
