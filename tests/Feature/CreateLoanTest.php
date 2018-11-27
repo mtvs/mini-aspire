@@ -54,6 +54,48 @@ class CreateLoanTest extends TestCase
     /**
      * @test
      */
+    public function an_officer_should_send_valid_data_when_creating_a_loan()
+    {
+        $this->withExceptionHandling();
+
+        $officer = factory(User::class)->state('officer')->create();
+
+        $this->actingAs($officer, 'api');
+
+        $response = $this->postJson('api/officer/loans', []);
+
+        $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+    }
+
+    /**
+     *  @test
+     */
+    public function an_officer_can_not_create_a_loan_for_an_officer()
+    {
+        $this->withExceptionHandling();
+
+        $officer = factory(User::class)->state('officer')->create();
+
+        $this->actingAs($officer, 'api');
+
+        $data = factory(Loan::class)->raw([
+            'customer_id' => $officer->id
+        ]);
+
+        $response = $this->postJson('api/officer/loans', $data);
+
+        $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+
+        $response->assertJsonStructure([
+            'errors' => [
+                'customer_id'
+            ]
+        ]);
+    }
+
+    /**
+     * @test
+     */
     public function an_unauthenticated_user_can_not_create_a_loan()
     {
         $this->withExceptionHandling();
