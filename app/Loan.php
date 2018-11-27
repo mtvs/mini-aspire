@@ -20,20 +20,7 @@ class Loan extends Model
             $return = parent::save($options);
 
             if ($isNew) {
-                $totalRepaymentsAmount =
-                    $this->amount +
-                    ($this->interest_rate/12 * $this->amount * $this->duration) +
-                    $this->arrangement_fee;
-
-                $singleRepaymentAmount = $totalRepaymentsAmount / $this->duration;
-
-                for($i = 1; $i <= $this->duration; $i++) {
-                    $repayments[] = [
-                        'amount' => $singleRepaymentAmount
-                    ];
-                }
-
-                $this->repayments()->createMany($repayments);
+                $this->createRepayments();
             }
         }
         catch (\Throwable $exception) {
@@ -50,5 +37,25 @@ class Loan extends Model
     public function repayments()
     {
         return $this->hasMany(Repayment::class);
+    }
+
+    protected function createRepayments()
+    {
+        $singleRepaymentAmount = $this->totalRepaymentsAmount() / $this->duration;
+
+        for($i = 1; $i <= $this->duration; $i++) {
+            $repayments[] = [
+                'amount' => $singleRepaymentAmount
+            ];
+        }
+
+        $this->repayments()->createMany($repayments);
+    }
+
+    public function totalRepaymentsAmount()
+    {
+        return $this->amount +
+            ($this->interest_rate/12 * $this->amount * $this->duration) +
+            $this->arrangement_fee;
     }
 }
