@@ -58,4 +58,21 @@ class ClaimDoingRepaymentTest extends TestCase
 
         $response->assertStatus(Response::HTTP_FORBIDDEN);
     }
+
+    /**
+     * @test
+     */
+    public function an_unauthenticated_user_can_not_claim_doing_a_repayment()
+    {
+        $this->withExceptionHandling();
+
+        $repayment = factory(Loan::class)->create()
+            ->repayments()->first();
+
+        $response = $this->postJson('api/customer/repayment/'.$repayment->id.'/claim', [
+            'transaction_details' => '...'
+        ]);
+
+        $response->assertStatus(Response::HTTP_UNAUTHORIZED);
+    }
 }

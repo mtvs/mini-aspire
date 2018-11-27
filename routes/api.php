@@ -32,6 +32,7 @@ Route::prefix('officer')
 
 Route::prefix('customer')
     ->namespace('Customer')
+    ->middleware('auth:api')
     ->group(function () {
         Route::post('repayment/{repayment}/claim', 'RepaymentsController@claim');
     });
