@@ -24,7 +24,7 @@ class LoansController extends Controller
             'officer_id' => auth()->id()
         ]);
 
-        Loan::create($request->only([
+        return Loan::create($request->only([
             'amount', 'duration', 'interest_rate',
             'arrangement_fee', 'customer_id', 'officer_id'
         ]));
