@@ -46,6 +46,7 @@ class CreateLoanTest extends TestCase
             $this->assertDatabaseHas('repayments', [
                 'loan_id' => 1,
                 'amount' => $repayment_amount,
+                'transaction_details' => null
             ]);
         }
     }
