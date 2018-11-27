@@ -17,7 +17,7 @@ class CreateLoansTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('officer_id');
             $table->unsignedDecimal('amount', 15);
-            $table->unsignedInteger('duration');
+            $table->unsignedInteger('duration')->comment('Number of the months');
             $table->unsignedDecimal('interest_rate', 5, 4);
             $table->unsignedDecimal('arrangement_fee');
             $table->unsignedInteger('customer_id');
