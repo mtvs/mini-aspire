@@ -15,6 +15,10 @@ class RepaymentsController extends Controller
             abort(Response::HTTP_FORBIDDEN, 'Forbidden to claim a repayment of another customer.');
         }
 
+        $this->validate($request, [
+            'transaction_details' => 'required'
+        ]);
+
         $repayment->update($request->only('transaction_details'));
 
         return response()->json(null, Response::HTTP_NO_CONTENT);
